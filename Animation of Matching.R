@@ -58,3 +58,4 @@ p <- ggplot(dffull,aes(y=Y,x=xaxisTime,color=Treated,size=Treated))+geom_point()
   exit_fade()+enter_fade()
 
 animate(p,nframes=200)
+anim_save("animations/matching.gif")

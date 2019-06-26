@@ -30,11 +30,11 @@ dffull <- rbind(
   #Step 4: Display time effect
   df %>% mutate(Y = mean_Y,state="4. See how Control changed over Time."),
   #Step 5: Shift to remove time effect
-  df %>% mutate(Y = mean_Y 
+  df %>% mutate(Y = mean_Y
                 - (Time=='After')*diff,
                 state="5. Remove the Before/After Control difference for both groups."),
   #Step 6: Raw demeaned data only
-  df %>% mutate(Y = mean_Y 
+  df %>% mutate(Y = mean_Y
                 - (Time=='After')*diff,
                 state='6. The remaining Before/After Treatment difference is the effect.'))
 
@@ -83,3 +83,4 @@ p <- ggplot(dffull,aes(y=Y,x=xaxisTime,color=as.factor(Control)))+geom_point()+
   exit_fade()+enter_fade()
 
 animate(p,nframes=150)
+anim_save("animations/did.gif")

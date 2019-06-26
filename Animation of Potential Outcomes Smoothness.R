@@ -4,7 +4,7 @@ library(ggthemes)
 
 
 df <- data.frame(X = runif(1000)+1,Treatment=as.factor("Untreated"),time="1") %>%
-  mutate(Y = X + rnorm(1000)/6) 
+  mutate(Y = X + rnorm(1000)/6)
 
 cutoff <- 1.75
 
@@ -30,3 +30,4 @@ p <- ggplot(dffull,aes(y=Y,x=X,color=Treatment))+geom_point()+
   exit_fade()+enter_fade()
 
 animate(p,nframes=160)
+anim_save("animations/potential_outcomes_smoothness.gif")

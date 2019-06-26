@@ -22,7 +22,7 @@ dffull <- rbind(
   df %>% mutate(mean_X=NA,mean_Y=NA,time=before_cor),
   #Step 2: Add x-lines
   df %>% mutate(mean_Y=NA,time='2. Figure out what differences in X are explained by W'),
-  #Step 3: X de-meaned 
+  #Step 3: X de-meaned
   df %>% mutate(X = X - mean_X,mean_X=0,mean_Y=NA,time="3. Remove differences in X explained by W"),
   #Step 4: Remove X lines, add Y
   df %>% mutate(X = X - mean_X,mean_X=NA,time="4. Figure out what differences in Y are explained by W"),
@@ -42,3 +42,4 @@ p <- ggplot(dffull,aes(y=Y,x=X,color=as.factor(W)))+geom_point()+
   exit_fade()+enter_fade()
 
 animate(p,nframes=200)
+anim_save("animations/controlling_for_z.gif")

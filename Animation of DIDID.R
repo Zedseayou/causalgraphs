@@ -9,7 +9,7 @@ df <- data.frame(Control = c(rep("Control",300),rep("Treatment",300)),
                  Group = rep(c(rep("Group A",75),rep("Group B",75)),4),
                  GroupTime=rep(c(rep("Group A Before",75),rep("Group B Before",75),
                              rep("Group A After",75),rep("Group B After",75)),2)) %>%
-  mutate(Y = 2+.5*(Control=="Treatment")+.5*(Time=="After") + 
+  mutate(Y = 2+.5*(Control=="Treatment")+.5*(Time=="After") +
            .2*(Control=="Treatment")*(Time=="After")+
            .4*(GroupTime=="Group B After" & Control == "Treatment")+
            2.6*(Group=="Group B")+
@@ -17,7 +17,7 @@ df <- data.frame(Control = c(rep("Control",300),rep("Treatment",300)),
          xaxisTime = (Time == "Before") + 2*(Time == "After") + (runif(600)-.5)*.95) %>%
   group_by(Control,GroupTime) %>%
   mutate(mean_Y=mean(Y)) %>%
-  ungroup() 
+  ungroup()
 
 df$Time <- factor(df$Time,levels=c("Before","After"))
 
@@ -41,19 +41,19 @@ dffull <- rbind(
   #Step 4: Display time effect
   df %>% mutate(Y = mean_Y,state="4. See how Control changed over Time in each Group."),
   #Step 5: Shift to remove time effect
-  df %>% mutate(Y = mean_Y 
+  df %>% mutate(Y = mean_Y
                 - (Time=='After')*ifelse(Group=="Group A",diffA,diffB),
                 state="5. Remove the Before/After difference in each groups."),
   #Step 6: Raw demeaned data only
-  df %>% mutate(Y = mean_Y 
+  df %>% mutate(Y = mean_Y
                 - (Time=='After')*ifelse(Group=="Group A",diffA,diffB),
                 state='6. The remaining Before/After difference is the diff-in-diff in each Group.'),
   #Step 7: And get rid of the group A difference
-  df %>% mutate(Y = mean_Y 
+  df %>% mutate(Y = mean_Y
                 - (Time=='After')*ifelse(Group=="Group A",diffA,diffB) - (Time=='After' & Control == "Treatment")*DIDA,
                 state='7. Remove the difference-in-difference effect from Group A.'),
   #Step 8: And rest
-  df %>% mutate(Y = mean_Y 
+  df %>% mutate(Y = mean_Y
                 - (Time=='After')*ifelse(Group=="Group A",diffA,diffB) - (Time=='After' & Control == "Treatment")*DIDA,
                 state='8. The remaining Before/After in Group B is the diff-in-diff-in-diff.')
   )
@@ -114,23 +114,23 @@ p <- ggplot(dffull,aes(y=Y,x=xaxisTime,color=as.factor(Control)))+geom_point()+
                             filter(dfseg,GroupTime=='Group B Before',Control=='Control')$mean_Y[1]+diffB,
                             ifelse(state=="5. Remove the Before/After difference in each groups.",
                                    filter(dfseg,GroupTime=='Group B Before',Control=='Control')$mean_Y[1],NA)),
-                   yend=filter(dfseg,GroupTime=='Group B Before',Control=='Control')$mean_Y[1]),size=1.5,color='blue')+  
+                   yend=filter(dfseg,GroupTime=='Group B Before',Control=='Control')$mean_Y[1]),size=1.5,color='blue')+
   geom_segment(aes(x=1.5,xend=1.5,
                    y=ifelse(state=="4. See how Control changed over Time in each Group.",
                             filter(dfseg,GroupTime=='Group A Before',Control=='Control')$mean_Y[1]+diffA,
                             ifelse(state=="5. Remove the Before/After difference in each groups.",
                                    filter(dfseg,GroupTime=='Group A Before',Control=='Control')$mean_Y[1],NA)),
-                   yend=filter(dfseg,GroupTime=='Group A Before',Control=='Control')$mean_Y[1]),size=1.5,color='blue')+  
+                   yend=filter(dfseg,GroupTime=='Group A Before',Control=='Control')$mean_Y[1]),size=1.5,color='blue')+
   geom_segment(aes(x=1.5,xend=1.5,
                    y=ifelse(state=='6. The remaining Before/After difference is the diff-in-diff in each Group.',
                             filter(dfseg,GroupTime=='Group A After',Control=='Treatment')$mean_Y[1]-diffA,
                             ifelse(state=='7. Remove the difference-in-difference effect from Group A.',
                                    filter(dfseg,GroupTime=='Group A Before',Control=='Treatment')$mean_Y[1],NA)),
-                   yend=filter(dfseg,GroupTime=='Group A Before',Control=='Treatment')$mean_Y[1]),size=1.5,color='blue')+  
+                   yend=filter(dfseg,GroupTime=='Group A Before',Control=='Treatment')$mean_Y[1]),size=1.5,color='blue')+
   geom_segment(aes(x=1.5,xend=1.5,
                    y=ifelse(state=='8. The remaining Before/After in Group B is the diff-in-diff-in-diff.',
                             filter(dfseg,GroupTime=='Group B After',Control=='Treatment')$mean_Y[1]-diffA-DIDA,NA),
-                   yend=filter(dfseg,GroupTime=='Group B Before',Control=='Treatment')$mean_Y[1]),size=1.5,color='blue')+  
+                   yend=filter(dfseg,GroupTime=='Group B Before',Control=='Treatment')$mean_Y[1]),size=1.5,color='blue')+
   labs(title = 'The Difference-in-Difference-in-Difference Effect of Treatment \n{next_state}')+
   transition_states(state,transition_length=c(6,16,6,16,6,16,16,6),state_length=c(50,22,12,22,30,50,50,50),wrap=FALSE)+
   ease_aes('sine-in-out')+
@@ -138,4 +138,4 @@ p <- ggplot(dffull,aes(y=Y,x=xaxisTime,color=as.factor(Control)))+geom_point()+
 
 
 animate(p,nframes=250)
-
+anim_save("animations/didid.gif")

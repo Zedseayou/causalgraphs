@@ -47,3 +47,4 @@ p <- ggplot(dffull,aes(y=Y,x=xaxisTime))+geom_point()+
   exit_fade()+enter_fade()
 
 animate(p,nframes=175)
+anim_save("animations/rdd.gif")
